@@ -1,24 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poke_project/features/pokemon-detail/screens/pokemon-detail.dart';
 import 'package:poke_project/features/pokemon-list/data/service/pokemon-service-dio.dart';
 import 'package:poke_project/features/pokemon-list/provider/pokemon-list-provider.dart';
 import 'package:poke_project/features/pokemon-list/screens/pokemon-list-screen-dio.dart';
 import 'package:poke_project/core/navigations/navigation-route.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as pr;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(
-    MultiProvider(
-      providers: [
-        Provider(create: (context) => PokemonListService()),
-        ChangeNotifierProvider(
-          create: (context) =>
-              PokemonListProvider(svc: context.read<PokemonListService>()),
-        ),
-      ],
-      child: const MyApp(),
+    ProviderScope(
+      child: pr.MultiProvider(
+        providers: [
+          pr.Provider(create: (context) => PokemonListService()),
+          pr.ChangeNotifierProvider(
+            create: (context) =>
+                PokemonListProvider(svc: context.read<PokemonListService>()),
+          ),
+          // ChangeNotifierProvider(create: (context) => PokemonDetailProvider()),
+          // FutureProvider<RemoteState>(create: (context) => context.read<PokemonDetailService>().fetchPokemonDetail(pokeId), initialData: RemoteStateLoading()),
+        ],
+        child: const MyApp(),
+      ),
     ),
   );
 }
@@ -41,7 +46,7 @@ class MyApp extends StatelessWidget {
         // Define your routes here if needed
         NavigatioRoutes.pokedexList.name: (context) => PokedexScreenV2(),
         NavigatioRoutes.pokedexDetail.name: (context) =>
-            const PokedexDetailScreen(),
+            const PokedexDetailScreenV2(),
       },
     );
   }

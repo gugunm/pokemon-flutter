@@ -1,21 +1,24 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poke_project/core/remote-state.dart';
 import 'package:poke_project/features/pokemon-detail/data/models/pokemon-detail.dart';
 import 'package:poke_project/features/pokemon-detail/data/service/pokemon-detail-service.dart';
+import 'package:poke_project/features/pokemon-detail/provider/pokemon-detail-provider.dart';
 import 'package:poke_project/features/pokemon-list/data/network/http-api-client.dart';
 
-class PokedexDetailScreen extends StatefulWidget {
-  const PokedexDetailScreen({super.key});
+class PokedexDetailScreenV2 extends ConsumerStatefulWidget {
+  const PokedexDetailScreenV2({super.key});
 
   @override
-  State<PokedexDetailScreen> createState() => _PokedexDetailScreenState();
+  ConsumerState<PokedexDetailScreenV2> createState() =>
+      _PokedexDetailScreenV2State();
 }
 
-class _PokedexDetailScreenState extends State<PokedexDetailScreen>
+class _PokedexDetailScreenV2State extends ConsumerState<PokedexDetailScreenV2>
     with TickerProviderStateMixin {
-  final PokemonDetailService pokemonDetailService = PokemonDetailService();
+  // const PokedexDetailScreen({super.key});
 
   TabController? _tabController;
 
@@ -48,207 +51,202 @@ class _PokedexDetailScreenState extends State<PokedexDetailScreen>
         ? args['color'] as Color
         : Colors.grey;
 
-    // Check if _tabController is initialized before building the widget tree
-    if (_tabController == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
+    // final pokemonDetailService = PokemonDetailService();
 
-    return Scaffold(
-      body: FutureBuilder<RemoteState>(
-        future: pokemonDetailService.fetchPokemonDetail(pokeIdFromArgs),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final remoteState = snapshot.data!;
-            if (remoteState is RemoteStateSuccess<PokeDetail>) {
-              final pokeDetail = remoteState.data;
-              // Use pokeDetail to build your UI
-              return Column(
-                children: [
-                  // Top curved section with Pokemon info
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.5,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          colorFromArgs,
-                          colorFromArgs.withValues(alpha: 0.7),
-                        ],
-                      ),
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(30),
-                        bottomRight: Radius.circular(30),
+    final pokeDetailData = ref.watch(pokemonDetailProvider(pokeIdFromArgs));
+
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+        body: pokeDetailData.when(
+          data: (pokeDetail) => Column(
+            children: [
+              // Top curved section with Pokemon info
+              Container(
+                height: MediaQuery.of(context).size.height * 0.5,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [colorFromArgs, colorFromArgs.withOpacity(0.7)],
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    // Background circles for decoration
+                    Positioned(
+                      top: 100,
+                      right: -50,
+                      child: Container(
+                        width: 200,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
-                    child: Stack(
-                      children: [
-                        // Background circles for decoration
-                        Positioned(
-                          top: 100,
-                          right: -50,
-                          child: Container(
-                            width: 200,
-                            height: 200,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
+                    Positioned(
+                      top: 200,
+                      right: 50,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.05),
+                          shape: BoxShape.circle,
                         ),
-                        Positioned(
-                          top: 200,
-                          right: 50,
-                          child: Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.05),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                        SafeArea(
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      ),
+                    ),
+                    SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Top bar with back button and heart
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                // Top bar with back button and heart
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    IconButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      icon: const Icon(
-                                        Icons.arrow_back,
-                                        color: Colors.white,
-                                        size: 28,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(
-                                        Icons.favorite_border,
-                                        color: Colors.white,
-                                        size: 28,
-                                      ),
-                                    ),
-                                  ],
+                                IconButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  icon: const Icon(
+                                    Icons.arrow_back,
+                                    color: Colors.white,
+                                    size: 28,
+                                  ),
                                 ),
-                                const SizedBox(height: 10),
-                                // Pokemon name and number
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      nameFromArgs,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      '#$pokeIdFromArgs',
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                // Type badges
-                                Row(
-                                  children: [
-                                    for (
-                                      int i = 0;
-                                      i < pokeDetail.types.length;
-                                      i++
-                                    ) ...[
-                                      _buildTypeBadge(
-                                        pokeDetail.types[i].type.name,
-                                      ),
-                                      if (i < pokeDetail.types.length - 1)
-                                        const SizedBox(width: 8),
-                                    ],
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                // Pokemon image centered horizontally
-                                Expanded(
-                                  child: Center(
-                                    child: Image.network(
-                                      getImageUrl(pokeIdFromArgs),
-                                      width: 180,
-                                      height: 180,
-                                      fit: BoxFit.cover,
-                                    ),
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(
+                                    Icons.favorite_border,
+                                    color: Colors.white,
+                                    size: 28,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
+                            const SizedBox(height: 10),
+                            // Pokemon name and number
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  nameFromArgs,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  '#$pokeIdFromArgs',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.8),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            // Type badges
+                            Row(
+                              children: [
+                                for (
+                                  int i = 0;
+                                  i < pokeDetail.types.length;
+                                  i++
+                                ) ...[
+                                  _buildTypeBadge(
+                                    pokeDetail.types[i].type.name,
+                                  ),
+                                  if (i < pokeDetail.types.length - 1)
+                                    const SizedBox(width: 8),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            // Pokemon image centered horizontally
+                            Expanded(
+                              child: Center(
+                                child: Image.network(
+                                  getImageUrl(pokeIdFromArgs),
+                                  width: 180,
+                                  height: 180,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-
-                  // Tab Bar
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    child: TabBar(
-                      controller: _tabController!,
-                      indicatorColor: Colors.blue,
-                      indicatorWeight: 3,
-                      labelColor: Colors.black,
-                      unselectedLabelColor: Colors.grey[400],
-                      labelStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
                       ),
-                      unselectedLabelStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.normal,
-                      ),
-                      tabs: const [
-                        Tab(text: 'About'),
-                        Tab(text: 'Base Stats'),
-                        Tab(text: 'Evolution'),
-                        Tab(text: 'Moves'),
-                      ],
                     ),
-                  ),
+                  ],
+                ),
+              ),
 
-                  // Tab Bar View
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController!,
-                      children: [
-                        _buildAboutTab(pokeDetail),
-                        _buildBaseStatsTab(pokeDetail),
-                        _buildEvolutionTab(pokeDetail),
-                        _buildMovesTab(pokeDetail),
-                      ],
-                    ),
+              // Tab Bar
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                child: const TabBar(
+                  indicatorColor: Colors.blue,
+                  indicatorWeight: 3,
+                  labelColor: Colors.black,
+                  unselectedLabelColor: Colors.grey,
+                  labelStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              );
-            } else if (remoteState is RemoteStateError) {
-              return Center(child: Text('Error: ${remoteState.message}'));
-            }
-          }
-          return const Center(child: Text('No data available'));
-        },
+                  unselectedLabelStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  tabs: [
+                    Tab(text: 'About'),
+                    Tab(text: 'Base Stats'),
+                    Tab(text: 'Evolution'),
+                    Tab(text: 'Moves'),
+                  ],
+                ),
+              ),
+
+              // Tab Bar View
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _buildAboutTab(pokeDetail),
+                    _buildBaseStatsTab(pokeDetail),
+                    _buildEvolutionTab(pokeDetail),
+                    _buildMovesTab(pokeDetail),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text('Error: $error'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () =>
+                      ref.refresh(pokemonDetailProvider(pokeIdFromArgs)),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
