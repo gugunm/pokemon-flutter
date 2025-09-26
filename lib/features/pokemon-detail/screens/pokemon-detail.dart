@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:poke_project/core/remote-state.dart';
+// import 'package:poke_project/core/remote-state.dart';
 import 'package:poke_project/features/pokemon-detail/data/models/pokemon-detail.dart';
-import 'package:poke_project/features/pokemon-detail/data/service/pokemon-detail-service.dart';
+// import 'package:poke_project/features/pokemon-detail/data/service/pokemon-detail-service.dart';
 import 'package:poke_project/features/pokemon-detail/provider/pokemon-detail-provider.dart';
 import 'package:poke_project/features/pokemon-list/data/network/http-api-client.dart';
 

@@ -53,13 +53,13 @@ class _PokemonCardState extends State<PokemonCard> {
             _pokeDetail = state.data;
             _isLoading = false;
           });
-          print('Fetched details for Bulbasaur: ${state.data}');
+          // print('Fetched details for Bulbasaur: ${state.data}');
         } else if (state is RemoteStateError) {
           setState(() {
             _errorMessage = state.message;
             _isLoading = false;
           });
-          print('Error fetching details: ${state.message}');
+          // print('Error fetching details: ${state.message}');
         }
       }
     } catch (e) {
@@ -129,7 +129,7 @@ class _PokemonCardState extends State<PokemonCard> {
 
     return GestureDetector(
       onTap: () {
-        print('Tapped on ${widget.name}');
+        // print('Tapped on ${widget.name}');
         Navigator.pushNamed(
           context,
           NavigatioRoutes.pokedexDetail.name,

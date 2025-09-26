@@ -3,8 +3,6 @@
 import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
-import 'package:poke_project/core/remote-state.dart';
-import 'package:poke_project/features/pokemon-list/data/model/pokemon-list.dart';
 import 'package:poke_project/features/pokemon-list/data/service/pokemon-service-dio.dart';
 import 'package:poke_project/features/pokemon-list/provider/pokemon-list-provider.dart';
 import 'package:poke_project/features/pokemon-list/screens/pokemon-card.dart';
