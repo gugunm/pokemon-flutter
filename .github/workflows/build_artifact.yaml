@@ -33,7 +33,7 @@ jobs:
       #   run: flutter analyze .
 
       - name: run test
-        run: flutter run
+        run: flutter test
 
       - name: build apk
         run: flutter build apk
