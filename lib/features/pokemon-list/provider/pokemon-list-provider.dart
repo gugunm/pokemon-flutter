@@ -11,7 +11,7 @@ class PokemonListProvider extends ChangeNotifier {
   PokemonListProvider({required this.svc});
 
   // Pagination variables
-  static const int pageSize = 20;
+  final int pageSize = 10;
   int _pageCount = 0;
   final List<Result> _pokemonList = [];
   RemoteState _remoteState = RemoteStateNone();
@@ -40,7 +40,7 @@ class PokemonListProvider extends ChangeNotifier {
         case RemoteStateSuccess<PokeList>(data: var d):
           _pageCount = pageCount + 1;
           _pokemonList.addAll(d.results);
-          _remoteState = RemoteStateSuccess(_pokemonList);
+          _remoteState = RemoteStateSuccess(d);
           break;
         case RemoteStateError(message: var m):
           _remoteState = RemoteStateError(m);

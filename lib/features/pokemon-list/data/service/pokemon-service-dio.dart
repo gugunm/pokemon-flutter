@@ -6,10 +6,7 @@ import 'package:poke_project/features/pokemon-list/data/model/pokemon-list.dart'
 class PokemonListService {
   final DioApiClient _dioApiClient = DioApiClient();
 
-  Future<RemoteState> fetchPokemonList({
-    int limit = 100,
-    int offset = 0,
-  }) async {
+  Future<RemoteState> fetchPokemonList({int limit = 10, int offset = 0}) async {
     try {
       final response = await _dioApiClient.dio.get(
         '/pokemon',
